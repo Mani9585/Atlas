@@ -1,0 +1,214 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Fourier Atlas — Country Outlines</title>
+<style>
+:root{color-scheme:dark;--bg:#07111e;--panel:#0d1b2c;--line:#20364e;--text:#eef6ff;--muted:#9db2c9;--mint:#55e5c4;--orange:#ffae62;--blue:#79aaff}
+*{box-sizing:border-box}body{margin:0;background:radial-gradient(ellipse at 55% -10%,#183454 0,transparent 45%),var(--bg);color:var(--text);font:15px/1.5 system-ui,-apple-system,Segoe UI,Roboto,Arial}
+main{max-width:1250px;margin:auto;padding:26px 20px 36px}header{display:flex;justify-content:space-between;align-items:center;gap:16px;margin-bottom:26px}.brand{font-weight:850;letter-spacing:.14em;font-size:12px;color:var(--mint)}.tag{border:1px solid var(--line);border-radius:99px;padding:7px 11px;color:var(--muted);font-size:11px}
+h1{font-size:clamp(34px,5vw,58px);line-height:1.02;letter-spacing:-.05em;margin:10px 0 13px}h1 span{color:var(--mint)}.lede{max-width:780px;color:var(--muted);font-size:15px;margin:0 0 25px}.layout{display:grid;grid-template-columns:minmax(0,1.7fr) minmax(280px,.8fr);gap:16px}
+.panel{background:linear-gradient(150deg,rgba(16,34,55,.96),rgba(9,22,36,.98));border:1px solid var(--line);border-radius:17px;overflow:hidden;min-width:0}.panelhead{display:flex;align-items:center;justify-content:space-between;gap:12px;padding:15px 17px;border-bottom:1px solid var(--line)}.panelhead strong{font-size:12px;letter-spacing:.08em}.status{font-size:11px;color:var(--mint);display:flex;align-items:center;gap:7px}.dot{width:7px;height:7px;border-radius:50%;background:var(--mint);box-shadow:0 0 9px var(--mint)}
+canvas{width:100%;height:auto;aspect-ratio:1.25;display:block;background:radial-gradient(ellipse at center,#10233a,#081421 76%)}.legend{padding:11px 17px;border-top:1px solid var(--line);display:flex;flex-wrap:wrap;gap:14px;color:var(--muted);font-size:11px}.key{display:inline-block;width:16px;height:3px;border-radius:2px;margin-right:5px;vertical-align:middle}
+.controls{padding:18px}.controls h2{font-size:15px;margin:0 0 4px}.hint{font-size:12px;color:var(--muted);margin-bottom:19px}.field{margin:16px 0}.field label,.fieldtop{font-size:12px;color:#dce8f5;display:block;margin-bottom:7px}.fieldtop{display:flex;justify-content:space-between;align-items:center}.val{font-weight:750;color:var(--mint);font-variant-numeric:tabular-nums}select,input[type=number]{width:100%;border:1px solid #304a64;background:#091726;color:var(--text);padding:10px 11px;border-radius:9px;font:inherit}input[type=range]{width:100%;accent-color:var(--mint)}.inline{display:grid;grid-template-columns:1fr 92px;gap:10px;align-items:center}.check{display:flex;justify-content:space-between;align-items:center;gap:10px;margin:15px 0;color:var(--muted);font-size:12px}.check input{accent-color:var(--mint);width:16px;height:16px}.buttons{display:flex;gap:9px;margin-top:20px}.btn{flex:1;border:1px solid #34516d;background:#142b43;color:var(--text);padding:10px 12px;border-radius:9px;font-weight:750;cursor:pointer}.btn.primary{background:var(--mint);border-color:var(--mint);color:#06221c}.btn:disabled{opacity:.5;cursor:wait}.stats{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-top:17px}.stat{border:1px solid var(--line);background:#081625;border-radius:10px;padding:10px}.stat small{display:block;color:var(--muted);font-size:9px;text-transform:uppercase;letter-spacing:.08em}.stat b{display:block;font-size:18px;margin-top:3px;font-variant-numeric:tabular-nums}.notice{border:1px solid #34465a;background:#0a1726;color:var(--muted);padding:11px 12px;border-radius:10px;font-size:11px;margin-top:14px}.notice.error{color:#ffb4a9;border-color:#74463f}.below{margin-top:16px;padding:20px}.below h2{font-size:16px;margin:0 0 13px}.steps{display:grid;grid-template-columns:repeat(3,1fr);gap:16px}.n{color:var(--orange);font-size:10px;letter-spacing:.1em;font-weight:800}.steps h3{font-size:13px;margin:5px 0}.steps p{font-size:12px;color:var(--muted);margin:0}.equation{margin-top:16px;padding:13px 15px;border:1px solid var(--line);background:#081523;border-radius:10px;font:13px/1.8 ui-monospace,monospace;overflow:auto}.equation span{color:var(--mint)}footer{text-align:center;color:#7188a1;font-size:10px;margin-top:18px}
+@media(max-width:850px){main{padding:18px 12px 28px}.layout{grid-template-columns:1fr}.steps{grid-template-columns:1fr}.tag{display:none}canvas{aspect-ratio:1/1}}
+</style>
+</head>
+<body><main>
+<header><div class="brand">∿ FOURIER ATLAS</div><div class="tag">INTERACTIVE COUNTRY OUTLINES</div></header>
+<div style="color:var(--mint);font-size:10px;letter-spacing:.18em;font-weight:800">MATHEMATICS MEETS GEOGRAPHY</div>
+<h1>Every country,<br><span>one harmonic at a time.</span></h1>
+<p class="lede">Choose a country and reconstruct its boundary using rotating Fourier epicycles. Adjust the number of terms to see the outline emerge from a coarse approximation into finer detail.</p>
+<div class="layout">
+<section class="panel">
+<div class="panelhead"><strong id="countryTitle">COUNTRY OUTLINE</strong><div class="status"><span class="dot"></span><span id="status">Loading world boundaries…</span></div></div>
+<canvas id="canvas" width="1000" height="800" aria-label="Fourier epicycles drawing the selected country's boundary"></canvas>
+<div class="legend"><span><i class="key" style="background:#55e5c4"></i>Fourier reconstruction</span><span><i class="key" style="background:#79aaff"></i>Epicycle vectors</span><span><i class="key" style="background:#ffae62"></i>Epicycle circles</span></div>
+</section>
+<aside class="panel controls">
+<h2>Explore the outline</h2><div class="hint">Country borders load from a public GeoJSON dataset. Internet access is required.</div>
+<div class="field"><label for="country">Country / territory</label><select id="country" disabled><option>Loading countries…</option></select></div>
+<div class="field"><div class="fieldtop"><label for="harmonics">Fourier terms</label><span class="val" id="hVal">80</span></div><div class="inline"><input id="harmonics" type="range" min="1" max="256" value="80" disabled><input id="hNumber" type="number" min="1" max="256" value="80" disabled aria-label="Number of Fourier terms"></div><div class="hint" style="margin:7px 0 0">Range: 1–256 terms per boundary ring. Higher values add higher-frequency detail.</div></div>
+<div class="field"><div class="fieldtop"><label for="speed">Animation speed</label><span class="val" id="speedVal">1.0×</span></div><input id="speed" type="range" min="1" max="30" value="10"></div>
+<label class="check">Show epicycle circles <input id="circles" type="checkbox" checked></label>
+<label class="check">Show rotating vectors <input id="vectors" type="checkbox" checked></label>
+<label class="check">Animate tracing point <input id="trace" type="checkbox" checked></label>
+<div class="buttons"><button id="play" class="btn primary" disabled>Ⅱ Pause</button><button id="restart" class="btn">↺ Restart</button></div>
+<div class="stats"><div class="stat"><small>Terms used</small><b id="statTerms">80</b></div><div class="stat"><small>Boundary rings</small><b id="statRings">—</b></div><div class="stat"><small>Samples / ring</small><b>512</b></div></div>
+<div id="message" class="notice">Fetching country outlines…</div>
+</aside>
+</div>
+<section class="panel below"><h2>How the Fourier Atlas works</h2><div class="steps">
+<div><div class="n">01 / SOURCE</div><h3>Get a real country boundary</h3><p>The app loads country polygons, including separate islands, from a world GeoJSON dataset.</p></div>
+<div><div class="n">02 / FOURIER ANALYSIS</div><h3>Convert each ring into frequencies</h3><p>Boundary points are evenly resampled to 512 samples per ring, then decomposed into complex Fourier coefficients ordered by frequency.</p></div>
+<div><div class="n">03 / RECONSTRUCT</div><h3>Build the outline from epicycles</h3><p>The selected number of terms is used to reconstruct the displayed outline. Increasing the count adds higher-frequency detail.</p></div>
+</div><div class="equation"><span>z(t)</span> = Σ cₖ e<sup>ikt</sup> &nbsp; · &nbsp; <span>cₖ</span> = (1/N) Σ zⱼ e<sup>−i2πkj/N</sup><br><span style="color:#91a8c0;font-size:11px">A discrete Fourier transform is used for each closed boundary ring. The outline is cached between frames; the number of terms is limited by the sampled boundary resolution.</span></div></section>
+<footer>Educational visualization · Boundaries are geographic data; map generalization varies by source. The site requires an internet connection to load the dataset.</footer>
+</main>
+<script>
+(() => {
+'use strict';
+const N=512, DATA_URL='https://raw.githubusercontent.com/datasets/geo-countries/master/data/countries.geojson';
+const $=id=>document.getElementById(id),canvas=$('canvas'),ctx=canvas.getContext('2d');
+let features=[],countryRings=[],primary=null,terms=80,t=0,speed=1,paused=false,last=0,ready=false,scale=1,center={x:0,y:0},pathCache=new Map(),cacheKey='';
+const setStatus=s=>$('status').textContent=s;
+const setMessage=(s,error=false)=>{$('message').textContent=s;$('message').className='notice'+(error?' error':'')};
+function pointLineDistance(p,a,b){const dx=b.x-a.x,dy=b.y-a.y;if(dx===0&&dy===0)return Math.hypot(p.x-a.x,p.y-a.y);let u=((p.x-a.x)*dx+(p.y-a.y)*dy)/(dx*dx+dy*dy);u=Math.max(0,Math.min(1,u));return Math.hypot(p.x-(a.x+u*dx),p.y-(a.y+u*dy));}
+function resample(coords,n){
+ let pts=coords.map(c=>({x:+c[0],y:+c[1]})).filter(p=>Number.isFinite(p.x)&&Number.isFinite(p.y));
+ if(pts.length<3)return null;
+ if(Math.hypot(pts[0].x-pts[pts.length-1].x,pts[0].y-pts[pts.length-1].y)>1e-9)pts.push({...pts[0]});
+ let lens=[0],total=0;for(let i=1;i<pts.length;i++){total+=Math.hypot(pts[i].x-pts[i-1].x,pts[i].y-pts[i-1].y);lens.push(total);}
+ if(total<1e-9)return null;
+ let out=[],j=1;for(let i=0;i<n;i++){let target=total*i/n;while(j<lens.length-1&&lens[j]<target)j++;let span=lens[j]-lens[j-1],f=span?(target-lens[j-1])/span:0;out.push({x:pts[j-1].x+(pts[j].x-pts[j-1].x)*f,y:pts[j-1].y+(pts[j].y-pts[j-1].y)*f});}
+ return out;
+}
+function dft(points){
+ const mx=points.reduce((s,p)=>s+p.x,0)/points.length,my=points.reduce((s,p)=>s+p.y,0)/points.length;
+ const z=points.map(p=>({x:p.x-mx,y:-(p.y-my)})),out=[];
+ // Compute the useful low-frequency terms only. The interface is capped at 256 terms,
+ // so there's no need to calculate hundreds of unused high-frequency coefficients.
+ const maxTerms=Math.min(256,N/2);
+ const ks=[0];
+ for(let k=1;ks.length<maxTerms;k++){ks.push(-k);if(ks.length<maxTerms)ks.push(k);}
+ for(const k of ks){
+  let re=0,im=0;
+  for(let j=0;j<N;j++){let a=-2*Math.PI*k*j/N;re+=z[j].x*Math.cos(a)-z[j].y*Math.sin(a);im+=z[j].x*Math.sin(a)+z[j].y*Math.cos(a);}
+  re/=N;im/=N;out.push({k,re,im,amp:Math.hypot(re,im),phase:Math.atan2(im,re)});
+ }
+ return {coeff:out,points:z,mean:{x:mx,y:my}};
+}
+function geomRings(geom){
+ if(!geom)return [];
+ let polys=[];
+ if(geom.type==='Polygon'&&Array.isArray(geom.coordinates))polys=[geom.coordinates];
+ else if(geom.type==='MultiPolygon'&&Array.isArray(geom.coordinates))polys=geom.coordinates;
+ else if(geom.type==='GeometryCollection'&&Array.isArray(geom.geometries)){
+  for(const g of geom.geometries){const nested=geomRings(g);for(const r of nested)polys.push([[...r.source.map(p=>[p.x,p.y]),[r.source[0].x,r.source[0].y]]]);}
+ } else return [];
+ const rings=[];
+ for(const poly of polys){
+  if(!Array.isArray(poly))continue;
+  for(const ring of poly){
+   if(!Array.isArray(ring)||ring.length<3)continue;
+   const p=resample(ring,N);
+   if(p)rings.push({source:p,area:Math.abs(signedArea(p))});
+  }
+ }
+ return rings;
+}
+function signedArea(p){let a=0;for(let i=0;i<p.length;i++){let q=p[(i+1)%p.length];a+=p[i].x*q.y-q.x*p[i].y;}return a/2;}
+let loadToken=0;
+async function selectCountry(name){
+ const token=++loadToken;
+ const f=features.find(x=>countryName(x)===name);if(!f)return;
+ ready=false;countryRings=[];primary=null;pathCache.clear();cacheKey='';
+ $('play').disabled=true;$('harmonics').disabled=true;$('hNumber').disabled=true;
+ $('countryTitle').textContent=name.toUpperCase();setStatus('Preparing outline…');setMessage(`Preparing ${name}. The page remains responsive while the boundary is processed…`);
+ await new Promise(resolve=>setTimeout(resolve,0));
+ if(token!==loadToken)return;
+ const raw=geomRings(f.geometry);if(!raw.length){setMessage('No polygon boundary found for this entry.',true);setStatus('No outline');return;}
+ const built=[];
+ // Yield every few rings so countries with many islands do not block the UI for one long task.
+ for(let i=0;i<raw.length;i++){
+  if(token!==loadToken)return;
+  built.push({...raw[i],...dft(raw[i].source)});
+  if(i%3===2)await new Promise(resolve=>setTimeout(resolve,0));
+ }
+ if(token!==loadToken)return;
+ countryRings=built.sort((a,b)=>b.area-a.area);
+ primary=countryRings[0];t=0;last=0;ready=true;pathCache.clear();cacheKey='';
+ $('statRings').textContent=countryRings.length;
+ $('play').disabled=false;$('harmonics').disabled=false;$('hNumber').disabled=false;
+ setStatus('Boundary ready');setMessage(`${name}: loaded ${countryRings.length} boundary ring(s). The outline is optimized for responsive rendering.`);
+ fitCountry();drawOnce();
+}
+function countryName(f){
+ const p=f.properties||{};
+ return p.ADMIN||p.name||p.NAME||p.name_en||p.ADMIN_NAME||p.SOVEREIGNT||p.BRK_NAME||p.formal_en||'Unknown';
+}
+function fitCountry(){
+ if(!countryRings.length)return;
+ // Fit to the main landmass rather than every remote island/territory.
+ // USA/Canada have far-flung islands that otherwise shrink the contiguous outline.
+ const fitRings=countryRings.slice(0,Math.min(3,countryRings.length));
+ let minX=Infinity,maxX=-Infinity,minY=Infinity,maxY=-Infinity;
+ for(const r of fitRings)for(const p of r.source){if(p.x<minX)minX=p.x;if(p.x>maxX)maxX=p.x;if(p.y<minY)minY=p.y;if(p.y>maxY)maxY=p.y;}
+ center={x:(minX+maxX)/2,y:(minY+maxY)/2};
+ const {w,h}=size();scale=Math.min(w*.94/Math.max(maxX-minX,1e-6),h*.94/Math.max(maxY-minY,1e-6));
+}
+function size(){const dpr=Math.min(window.devicePixelRatio||1,2),r=canvas.getBoundingClientRect();if(canvas.width!==Math.round(r.width*dpr)||canvas.height!==Math.round(r.height*dpr)){canvas.width=Math.round(r.width*dpr);canvas.height=Math.round(r.height*dpr);}ctx.setTransform(dpr,0,0,dpr,0,0);return{w:r.width,h:r.height};}
+function mapPt(p,w,h){return{x:w/2+(p.x-center.x)*scale,y:h/2-(p.y-center.y)*scale};}
+function reconstruct(r,count,time){
+ let x=0,y=0,chain=[];
+ for(let i=0;i<count;i++){const c=r.coeff[i],a=c.phase+c.k*time,dx=c.amp*Math.cos(a),dy=c.amp*Math.sin(a);chain.push({x,y,dx,dy,r:c.amp});x+=dx;y+=dy;}
+ return {x:x+r.mean.x,y:r.mean.y-y,chain,mean:r.mean};
+}
+function preparePaths(count){
+ const key=(countryRings.length?$('country').value:'')+':'+count+':'+N;
+ if(key===cacheKey)return;
+ // A cached polyline is enough for drawing the static outline. The animated endpoint
+ // and epicycle chain are still evaluated at the current time.
+ for(const r of countryRings){
+  const pts=new Array(N);
+  for(let j=0;j<N;j++){
+   let x=0,y=0,angle=2*Math.PI*j/N;
+   for(let i=0;i<count;i++){const c=r.coeff[i],a=c.phase+c.k*angle;x+=c.amp*Math.cos(a);y+=c.amp*Math.sin(a);}
+   pts[j]={x:x+r.mean.x,y:r.mean.y-y};
+  }
+  r.cachedPath=pts;
+ }
+ cacheKey=key;
+}
+function drawOnce(now=0){
+ const {w,h}=size();ctx.clearRect(0,0,w,h);
+ ctx.save();ctx.strokeStyle='rgba(113,151,187,.08)';ctx.lineWidth=1;for(let x=0;x<w;x+=32){ctx.beginPath();ctx.moveTo(x,0);ctx.lineTo(x,h);ctx.stroke()}for(let y=0;y<h;y+=32){ctx.beginPath();ctx.moveTo(0,y);ctx.lineTo(w,y);ctx.stroke()}ctx.restore();
+ if(!ready){ctx.fillStyle='#9db2c9';ctx.font='14px system-ui';ctx.textAlign='center';ctx.fillText('Load a country to begin',w/2,h/2);return;}
+ // Draw every ring as a Fourier reconstruction using exactly the selected term count.
+ const count=Math.min(terms,N/2);
+ preparePaths(count);
+ for(const r of countryRings){
+  const pts=r.cachedPath;if(!pts)continue;
+  ctx.beginPath();for(let j=0;j<pts.length;j++){const q=mapPt(pts[j],w,h);j?ctx.lineTo(q.x,q.y):ctx.moveTo(q.x,q.y);}ctx.closePath();
+  ctx.strokeStyle=r===primary?'#55e5c4':'rgba(85,229,196,.62)';ctx.lineWidth=r===primary?2:1;ctx.stroke();
+ }
+ // Epicycles are shown on the largest ring, with a rotating endpoint.
+ const result=reconstruct(primary,count,t),origin={x:0,y:0};
+ if($('circles').checked){for(const c of result.chain){if(c.r*scale<.6)continue;const o=mapPt({x:primary.mean.x+c.x,y:primary.mean.y-c.y},w,h);ctx.beginPath();ctx.arc(o.x,o.y,c.r*scale,0,Math.PI*2);ctx.strokeStyle='rgba(255,174,98,.27)';ctx.lineWidth=.8;ctx.stroke();}}
+ if($('vectors').checked){for(const c of result.chain){const a=mapPt({x:primary.mean.x+c.x,y:primary.mean.y-c.y},w,h),b=mapPt({x:primary.mean.x+c.x+c.dx,y:primary.mean.y-c.y-c.dy},w,h);ctx.beginPath();ctx.moveTo(a.x,a.y);ctx.lineTo(b.x,b.y);ctx.strokeStyle='rgba(121,170,255,.8)';ctx.lineWidth=1;ctx.stroke();}}
+ if($('trace').checked){const end=mapPt(result,w,h);ctx.beginPath();ctx.arc(end.x,end.y,4,0,Math.PI*2);ctx.fillStyle='#eafff9';ctx.fill();ctx.beginPath();ctx.arc(end.x,end.y,8,0,Math.PI*2);ctx.strokeStyle='rgba(85,229,196,.5)';ctx.stroke();}
+ $('statTerms').textContent=count;$('hVal').textContent=count;$('hNumber').value=count;
+ if(!paused){const dt=last?Math.min((now-last)/1000,.05):0;t=(t+dt*speed)%(Math.PI*2);}
+ last=now;
+}
+function frame(now){drawOnce(now);requestAnimationFrame(frame);}
+function setTerms(v){v=Math.max(1,Math.min(256,Math.round(Number(v)||1)));terms=v;cacheKey='';$('harmonics').value=v;$('hNumber').value=v;$('hVal').textContent=v;$('statTerms').textContent=v;}
+$('harmonics').addEventListener('input',e=>{setTerms(e.target.value);});
+$('hNumber').addEventListener('change',e=>{setTerms(e.target.value);});
+$('speed').addEventListener('input',e=>{speed=+e.target.value/10;$('speedVal').textContent=speed.toFixed(1)+'×';});
+['circles','vectors','trace'].forEach(id=>$(id).addEventListener('change',()=>{}));
+$('play').addEventListener('click',()=>{paused=!paused;$('play').textContent=paused?'▶ Resume':'Ⅱ Pause';if(!paused)last=0;});
+$('restart').addEventListener('click',()=>{t=0;last=0;paused=false;$('play').textContent='Ⅱ Pause';});
+$('country').addEventListener('change',e=>selectCountry(e.target.value));
+window.addEventListener('resize',()=>{fitCountry();});
+async function init(){
+ try{
+  setStatus('Downloading dataset…');
+  const response=await fetch(DATA_URL);if(!response.ok)throw new Error('Dataset request failed (HTTP '+response.status+').');
+  const data=await response.json();features=(data.features||[]).filter(f=>f.geometry&&['Polygon','MultiPolygon'].includes(f.geometry.type));
+  if(!features.length)throw new Error('No country polygon features were found in the dataset.');
+  features.sort((a,b)=>countryName(a).localeCompare(countryName(b)));
+  const sel=$('country');sel.innerHTML='';
+  for(const f of features){const name=countryName(f),o=document.createElement('option');o.value=name;o.textContent=name;sel.appendChild(o);}
+  sel.disabled=false;
+  // Select India when present, otherwise the first available country.
+  const india=features.find(f=>/^india$/i.test(countryName(f)));sel.value=india?countryName(india):countryName(features[0]);
+  selectCountry(sel.value);
+ }catch(err){
+  setStatus('Could not load data');setMessage('Could not load country boundaries. Check your internet connection, then reload. Details: '+err.message,true);
+ }
+}
+setTerms(80);requestAnimationFrame(frame);init();
+})();
+</script></body></html>
